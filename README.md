@@ -4,7 +4,7 @@
 ## 组件（App管理）
 * MyHeader-输入框
 * MyList-内容区
-** MyItem-todo项，包含复选框，标签和删除按钮
+  * MyItem-todo项，包含复选框，标签和删除按钮
 * MyFooter-底部，包含全部todo，及已完成todo数据统计，复选框和删除已完成任务按钮
 
 ## 功能实现
