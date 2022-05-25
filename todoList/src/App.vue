@@ -24,11 +24,7 @@ export default {
   },
   data(){
     return {
-      todos:[
-        {id:'001',title:'背单词',done:true},
-        {id:'002',title:'看书',done:true},
-        {id:'003',title:'跳舞',done:true}
-      ]
+      todos: JSON.parse(localStorage.getItem('todos')) || []
     }
   },
   methods:{
@@ -57,6 +53,14 @@ export default {
       this.todos = this.todos.filter(todo=>{
         return !todo.done;
       })
+    }
+  },
+  watch:{
+    todos:{
+      deep: true,
+      handler(newVal){
+        localStorage.setItem('todos',JSON.stringify(newVal));
+      }
     }
   }
 };
