@@ -2,30 +2,61 @@
   <li>
     <label>
       <!-- check是为了初始化数据，click/change是为了响应todo.done -->
-      <input type="checkbox" :checked="todo.done" @change="handleCheck(todo.id)"/>
+      <input
+        type="checkbox"
+        :checked="todo.done"
+        @change="handleCheck(todo.id)"
+      />
       <!-- 如下代码也能实现功能，但是不太推荐，因为有点违反原则，因为修改了props -->
       <!-- <input type="checkbox" v-model="todo.done"/> -->
-      <span>{{todo.title}}</span>
+      <span v-show="!todo.isEdit">{{ todo.title }}</span>
+      <input
+        v-show="todo.isEdit"
+        type="text"
+        :value="todo.title"
+        @blur="handleBlur(todo,$event)"
+        ref="inputTitle"
+      />
     </label>
     <button class="btn btn-danger" @click="handleDelete(todo.id)">删除</button>
+    <button v-show="!todo.isEdit" class="btn btn-edit" @click="handleEdit(todo)">编辑</button>
   </li>
 </template>
 
 <script>
+import pubsub from "pubsub-js";
 export default {
   name: "MyItem",
-  props:['todo','checkTodo','deleteTodo'],
-  methods:{
-    handleCheck(id){
+  props: ["todo", "checkTodo", "deleteTodo"],
+  methods: {
+    handleCheck(id) {
       // 通知App组件将对应的todo对象的done值取反
-      this.checkTodo(id);
+      // this.checkTodo(id);
+      this.$bus.$emit("checkTodo", id);
     },
-    handleDelete(id){
-      if(confirm('确定删除吗？')){
-        this.deleteTodo(id);
+    handleDelete(id) {
+      if (confirm("确定删除吗？")) {
+        pubsub.publish("deleteTodo", id);
+        // this.deleteTodo(id);
+        // this.$bus.$emit('deleteTodo',id);
       }
-    }
-  }
+    },
+    handleEdit(todo) {
+      if (Object.hasOwnProperty.call(todo,'isEdit')) {
+        todo.isEdit = true;
+      }else{
+        this.$set(todo, "isEdit", true);
+      }
+      this.$nextTick(()=>{
+        this.$refs.inputTitle.focus()
+      })
+    },
+    // 失去焦点回调（真正执行修改逻辑）
+    handleBlur(todo,e) {
+      todo.isEdit = false;
+      this.$bus.$emit('updateTodo',todo.id,e.target.value) 
+    },
+  },
 };
 </script>
 
@@ -64,10 +95,10 @@ li:before {
 li:last-child {
   border-bottom: none;
 }
-li:hover{
+li:hover {
   background-color: #ddd;
 }
-li:hover button{
+li:hover button {
   display: block;
 }
 </style>

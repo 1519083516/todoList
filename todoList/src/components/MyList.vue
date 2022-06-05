@@ -1,11 +1,6 @@
 <template>
   <ul :class="changeClass">
-    <MyItem 
-      v-for="todo in todos" 
-      :key="todo.id" 
-      :todo="todo" 
-      :deleteTodo="deleteTodo"
-      :checkTodo="checkTodo">
+    <MyItem v-for="todo in todos" :todo="todo" :key="todo.id">
     </MyItem>
   </ul>
 </template>
@@ -16,7 +11,7 @@ import MyItem from "./MyItem";
 export default {
   name: "MyList",
   components: { MyItem },
-  props:['todos','checkTodo','deleteTodo'],
+  props:['todos'],
   computed:{
     changeClass(){
       return this.todos.length==0?'todo-empty':'toto-main';

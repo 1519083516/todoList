@@ -2,15 +2,16 @@
   <div id="app">
     <div class="todo-container">
       <div class="todo-wrap">
-        <MyHeader :addTodo="addTodo"></MyHeader>
-        <MyList :todos="todos" :checkTodo="checkTodo" :deleteTodo="deleteTodo"></MyList>
-        <MyFooter :todos="todos" :clearAllDone="clearAllDone" :checkAllTodo="checkAllTodo"></MyFooter>
+        <MyHeader @addTodo="addTodo"></MyHeader>
+        <MyList :todos="todos"></MyList>
+        <MyFooter :todos="todos" @clearAllDone="clearAllDone" @checkAllTodo="checkAllTodo"></MyFooter>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import pubsub from 'pubsub-js';
 import MyHeader from "./components/MyHeader";
 import MyList from "./components/MyList";
 import MyFooter from "./components/MyFooter";
@@ -38,8 +39,14 @@ export default {
         if(todo.id===id) todo.done = !todo.done;
       });
     },
+    // 更新todo的内容
+    updateTodo(id,title){
+      this.todos.forEach((todo)=>{
+        if(todo.id===id) todo.title = title;
+      });
+    },
     // 删除一个todo
-    deleteTodo(id){
+    deleteTodo(_,id){
       this.todos=this.todos.filter(todo=> todo.id !==id);
     },
     // 全选或全部取消
@@ -62,6 +69,17 @@ export default {
         localStorage.setItem('todos',JSON.stringify(newVal));
       }
     }
+  },
+  mounted(){
+    this.$bus.$on('checkTodo',this.checkTodo)
+    // this.$bus.$on('deleteTodo',this.deleteTodo)
+    this.pubId = pubsub.subscribe('deleteTodo',this.deleteTodo)
+    this.$bus.$on('updateTodo',this.updateTodo)
+  },
+  beforeDestroy(){
+    this.$bus.$off('checkTodo')
+    this.$bus.$off('updateTodo')
+    pubsub.unsubscribe(this.pubId)
   }
 };
 </script>
@@ -96,7 +114,12 @@ body {
   color: #fff;
   background-color: #bd362f;
 }
-
+.btn-edit {
+  color: #fff;
+  background-color: skyblue;
+  border: 1px solid rgb(103, 159, 180);
+  margin-right: 5px;
+}
 .btn:focus {
   outline: none;
 }
